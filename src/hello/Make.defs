@@ -1,0 +1,3 @@
+ifeq ($(CONFIG_APP_HELLO),y)
+CONFIGURED_APPS += external/hello
+endif
