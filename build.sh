@@ -13,7 +13,7 @@ NUTTX_APPS_DIR=${BUILD_PREFIX_DIR}/apps
 NUTTX_APPS_GIT_URL=https://github.com/apache/incubator-nuttx-apps
 NUTTX_APPS_GIT_TAG=nuttx-12.0.0
 
-function build() {
+function configure() {
     if [ ! -d ${NUTTX_DIR} ]; then
         mkdir -p $(dirname ${NUTTX_DIR})
         git clone ${NUTTX_GIT_URL} -b ${NUTTX_GIT_TAG} ${NUTTX_DIR}
@@ -43,9 +43,6 @@ EOS
     fi
 
     cd ${BUILD_PREFIX_DIR}/nuttx
-
-    #make clean_context all
-    #make clean
 
     ./tools/configure.sh -l esp32-devkitc:nsh
 
@@ -80,13 +77,22 @@ EOS
     echo "hello" >> rcS.template
     ../../../../../tools/mkromfsimg.sh ../../../../../
     cd ../../../../..
-
-    make -j$(nproc)
-
-    cd ../..
 }
 
 function clean() {
+    cd ${BUILD_PREFIX_DIR}/nuttx
+    make clean_context all
+    make clean
+    cd ../..
+}
+
+function build() {
+    cd ${BUILD_PREFIX_DIR}/nuttx
+    make -j$(nproc)
+    cd ../..
+}
+
+function allclean() {
     echo "Cleaning up generated files..."
     cd ${BUILD_PREFIX_DIR}/nuttx
     make clean
@@ -96,10 +102,20 @@ function clean() {
 }
 
 case "$1" in
+    allclean)
+        allclean
+        ;;
     clean)
         clean
         ;;
-    build|*)
+    configure)
+        configure
+        ;;
+    build)
+        build
+        ;;
+    *)
+        configure
         build
         ;;
 esac
