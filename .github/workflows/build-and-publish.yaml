@@ -21,19 +21,21 @@ jobs:
     - name: Check out the source code
       uses: actions/checkout@v3
 
-    - name: Clone Dockerfile repository
+    - name: Install
       run: |
-        git clone https://github.com/wurly200a/builder_nuttx_esp32.git dockerfile-repo
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-
-    - name: Build Docker image
-      run: |
-        docker build -t wurly/builder_nuttx_esp32:latest ./dockerfile-repo
+        sudo apt install -y \
+            bison flex gettext texinfo libncurses5-dev libncursesw5-dev xxd \
+            gperf automake libtool pkg-config build-essential gperf genromfs \
+            libgmp-dev libmpc-dev libmpfr-dev libisl-dev binutils-dev libelf-dev \
+            libexpat-dev gcc-multilib g++-multilib picocom u-boot-tools util-linux
+        sudo apt install -y kconfig-frontends
+        sudo apt install -y gcc-arm-none-eabi binutils-arm-none-eabi
+        sudo apt install -y git wget flex bison gperf python3 python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
+        mkdir -p ~/esp
+        git clone --recursive https://github.com/espressif/esp-idf.git -b v5.3 ~/esp/esp-idf
+        ~/esp/esp-idf/install.sh esp32
 
     - name: Run NuttX build
       run: |
-        PROJECT_NAME=hello-world-on-nuttx-esp32
-        docker run --rm -v ${{ github.workspace }}:/home/builder/${PROJECT_NAME} -w /home/builder/${PROJECT_NAME} wurly/builder_nuttx_esp32 \
-          /bin/bash -c "get_idf && ./build.sh"
+        . /home/runner/esp/esp-idf/export.sh
+        ./build.sh

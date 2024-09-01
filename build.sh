@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -x
 
 MY_APP_NAME=hello
 BUILD_PREFIX_DIR=src
