@@ -1,0 +1,39 @@
+name: build
+
+on:
+  workflow_call:
+    inputs:
+      mainPipeline:
+        description: Distinguish main and PR pipelines
+        default: false
+        required: false
+        type: boolean
+      prNumber:
+        description: Pull request number
+        required: false
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+    - name: Check out the source code
+      uses: actions/checkout@v3
+
+    - name: Clone Dockerfile repository
+      run: |
+        git clone https://github.com/wurly200a/builder_nuttx_esp32.git dockerfile-repo
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Build Docker image
+      run: |
+        docker build -t wurly/builder_nuttx_esp32:latest ./dockerfile-repo
+
+    - name: Run NuttX build
+      run: |
+        PROJECT_NAME=hello-world-on-nuttx-esp32
+        docker run --rm -v ${{ github.workspace }}:/home/builder/${PROJECT_NAME} -w /home/builder/${PROJECT_NAME} wurly/builder_nuttx_esp32 \
+          /bin/bash -c "get_idf && ./build.sh"
