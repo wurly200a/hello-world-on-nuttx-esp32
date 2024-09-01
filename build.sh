@@ -12,20 +12,22 @@ NUTTX_GIT_TAG=nuttx-12.0.0
 NUTTX_APPS_DIR=${BUILD_PREFIX_DIR}/apps
 NUTTX_APPS_GIT_URL=https://github.com/apache/incubator-nuttx-apps
 NUTTX_APPS_GIT_TAG=nuttx-12.0.0
+NUTTX_APPS_EXTERNAL_DIR=${NUTTX_APPS_DIR}/external
 
 function configure() {
+    # clone incubator-nuttx
     if [ ! -d ${NUTTX_DIR} ]; then
         mkdir -p $(dirname ${NUTTX_DIR})
         git clone ${NUTTX_GIT_URL} -b ${NUTTX_GIT_TAG} ${NUTTX_DIR}
     fi
 
+    # clone incubator-nuttx-apps
     if [ ! -d ${NUTTX_APPS_DIR} ]; then
         mkdir -p $(dirname ${NUTTX_APPS_DIR})
         git clone ${NUTTX_APPS_GIT_URL} -b ${NUTTX_APPS_GIT_TAG} ${NUTTX_APPS_DIR}
     fi
 
-    NUTTX_APPS_EXTERNAL_DIR=${NUTTX_APPS_DIR}/external
-
+    # apps/external setting
     if [ ! -d ${NUTTX_APPS_EXTERNAL_DIR} ]; then
         mkdir -p ${NUTTX_APPS_EXTERNAL_DIR}
         cat << 'EOS' > ${NUTTX_APPS_EXTERNAL_DIR}/Makefile
@@ -42,7 +44,8 @@ EOS
         ln -s $(pwd)/${MY_APP_DIR} ${NUTTX_APPS_EXTERNAL_DIR}/${MY_APP_NAME}
     fi
 
-    cd ${BUILD_PREFIX_DIR}/nuttx
+    # configure
+    cd ${NUTTX_DIR}
 
     ./tools/configure.sh -l esp32-devkitc:nsh
 
@@ -62,6 +65,7 @@ EOS
     kconfig-tweak --file .config --set-val CONFIG_APP_HELLO_PRIORITY 100
     kconfig-tweak --file .config --set-val CONFIG_APP_HELLO_STACKSIZE 2048
 
+    # auto executing setting
     cd boards/xtensa/esp32/esp32-devkitc/include
 
     if [ -e rc.sysinit.template ]; then
@@ -80,25 +84,29 @@ EOS
 }
 
 function clean() {
-    cd ${BUILD_PREFIX_DIR}/nuttx
+    cd ${NUTTX_DIR}
     make clean_context all
     make clean
     cd ../..
 }
 
 function build() {
-    cd ${BUILD_PREFIX_DIR}/nuttx
+    cd ${NUTTX_DIR}
     make -j$(nproc)
     cd ../..
 }
 
 function allclean() {
     echo "Cleaning up generated files..."
-    cd ${BUILD_PREFIX_DIR}/nuttx
-    make clean
-    cd ../..
-    rm -rf ${NUTTX_DIR}
-    rm -rf ${NUTTX_APPS_DIR}
+    if [ -d ${NUTTX_DIR} ]; then
+        cd ${NUTTX_DIR}
+        make clean
+        cd ../..
+        rm -rf ${NUTTX_DIR}
+    fi
+    if [ -d ${NUTTX_APPS_DIR} ]; then
+        rm -rf ${NUTTX_APPS_DIR}
+    fi
 }
 
 case "$1" in

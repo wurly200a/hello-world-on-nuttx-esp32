@@ -2,7 +2,13 @@
 
 Hello world on NuttX ESP32
 
-## Environment
+## Prerequisites
+ - Ubuntu 22.04
+ - Docker
+ - Python3
+  - Python3-venv
+
+## Environment Variable
 
 ```
 PROJECT_NAME=hello-world-on-nuttx-esp32
