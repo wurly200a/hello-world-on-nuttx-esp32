@@ -2,7 +2,12 @@
 
 Hello world on NuttX ESP32
 
-## Prerequisites
+## Prerequisites(Target hardware)
+ - ESP32-DevKitC (ESP32-WROOM-32E)
+ 
+ You can set preferred hardware with ESP32_MODULE_NAME and ESP32_BOARD_NAME environment value in build.sh
+
+## Prerequisites(Development software)
  - Ubuntu 22.04
  - Docker
  - Python3
