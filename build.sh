@@ -1,5 +1,8 @@
 #!/bin/bash
 
+ESP32_MODULE_NAME=esp32
+ESP32_BOARD_NAME=esp32-devkitc
+
 MY_APP_NAME=hello
 BUILD_PREFIX_DIR=src
 
@@ -47,7 +50,7 @@ EOS
     # configure
     cd ${NUTTX_DIR}
 
-    ./tools/configure.sh -l esp32-devkitc:nsh
+    ./tools/configure.sh -l ${ESP32_BOARD_NAME}:nsh
 
     kconfig-tweak --file .config --enable CONFIG_BOARDCTL_ROMDISK
     kconfig-tweak --file .config --set-str CONFIG_NSH_SCRIPT_REDIRECT_PATH ""
@@ -66,7 +69,7 @@ EOS
     kconfig-tweak --file .config --set-val CONFIG_APP_HELLO_STACKSIZE 2048
 
     # auto executing setting
-    cd boards/xtensa/esp32/esp32-devkitc/include
+    cd boards/xtensa/${ESP32_MODULE_NAME}/${ESP32_BOARD_NAME}/include
 
     if [ -e rc.sysinit.template ]; then
         rm rc.sysinit.template
